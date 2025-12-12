@@ -1,0 +1,219 @@
+%==============================================================================
+% Voorstel-inhoud — enkel de hoofdtekst (géén \documentclass, géén \begin{document})
+%==============================================================================
+
+% TODO (feedback): Is dit voorstel gebaseerd op een paper van Research Methods die je
+% vorig jaar hebt ingediend? Heb je daarbij eventueel samengewerkt met een andere student?
+% - Zo ja, haal dan de tekst hieronder uit commentaar en pas aan.
+% - Zo nee, verwijder dit hele blok.
+
+% \paragraph{Opmerking}
+% Dit voorstel is gebaseerd op het onderzoeksvoorstel dat werd geschreven in het
+% kader van het vak Research Methods dat ik (vorig/dit) academiejaar heb
+% uitgewerkt (met medestudent VOORNAAM NAAM als mede-auteur).
+
+%---------- Inleiding ---------------------------------------------------------
+
+\section{Inleiding}
+\label{sec:inleiding}
+
+De Belgische huurmarkt is sterk gedigitaliseerd: het merendeel van het aanbod verschijnt op online platformen. Voor kandidaat-huurders is het vinden van een geschikte woning echter vaak tijdsgevoelig. Interessante panden zijn soms slechts korte tijd zichtbaar, waardoor wie niet frequent zoekt sneller opportuniteiten mist. Tegelijk is het aanbod gefragmenteerd: dezelfde woningen verschijnen op meerdere platformen met verschillende filtermogelijkheden en alertmechanismen.
+
+Bestaande e-mailalerts of zoekmeldingen zijn meestal platformgebonden en bieden vaak beperkte controle over meldingsfrequentie, transparantie en fijnmazige criteria. Kandidaten lossen dit in de praktijk op door meerdere websites manueel te controleren, zoekopdrachten opnieuw uit te voeren en meldingen te combineren. Dit is tijdrovend en verhoogt de kans op dubbele meldingen (hetzelfde pand op verschillende sites) of irrelevante meldingen door te brede zoekinstellingen.
+
+Deze bachelorproef vertrekt vanuit de concrete behoefte aan een centraal en platform-onafhankelijk mechanisme waarmee kandidaat-huurders hun voorkeuren één keer kunnen vastleggen en automatisch verwittigd kunnen worden wanneer nieuw aanbod verschijnt dat aan die voorkeuren voldoet. Het onderzoek resulteert in een werkende proof-of-concept (PoC) en een onderbouwde evaluatie van de haalbaarheid en meerwaarde.
+
+Om het onderzoek haalbaar te houden, wordt de scope afgebakend tot:
+\begin{itemize}
+  \item huurpanden (geen koopmarkt);
+  \item een beperkte selectie van grote Belgische huurplatformen (minstens twee bronnen binnen de haalbare randvoorwaarden);
+  \item een proof-of-concept met een representatieve set criteria (bv. prijs, regio, type woning, aantal slaapkamers, beschikbaarheid, en minstens één “extra” criterium zoals huisdierenbeleid indien de data dit toelaat);
+  \item een webapplicatie als demonstrator, niet een productierijp systeem.
+\end{itemize}
+
+%---------- Probleemstelling, onderzoeksvraag en doelstellingen ----------------
+
+\sloppy
+\section{Probleemstelling, onderzoeksvraag en doelstellingen}
+\label{sec:onderzoeksvraag}
+
+\subsection*{Probleemstelling}
+
+\markProbleem{Kandidaat-huurders op de Belgische markt ervaren dat het zoekproces naar huurpanden:
+(1) gefragmenteerd is over meerdere platformen,
+(2) tijdrovend wordt door herhaalde manuele controles,
+en (3) leidt tot dubbele of irrelevante meldingen wanneer men platformgebonden alerts combineert.
+Er is nood aan een mechanisme dat het opvolgen van nieuw aanbod automatiseert op basis van persoonlijke criteria, onafhankelijk van één specifiek platform.}
+
+\subsection*{Hoofdonderzoeksvraag}
+
+\begin{quote}
+\markHoofd{Hoe kan een platform-onafhankelijke, regelgebaseerde alerts-tool ontworpen en geïmplementeerd worden die kandidaat-huurders op de Belgische huurmarkt automatisch verwittigt wanneer nieuwe panden verschijnen die voldoen aan hun persoonlijke criteria, met minimale dubbele en irrelevante meldingen?}
+\end{quote}
+
+\subsection*{Deelvragen -- probleemdomein}
+
+\begin{enumerate}
+  \item \markDVProb{Hoe verloopt het huidige zoek- en selectieproces van kandidaat-huurders, en welke frustraties en noden ervaren zij (bv. timing, fragmentatie, dubbele listings, beperkingen van filters)?}
+  \item \markDVProb{Welke data-attributen en filtermogelijkheden bieden de geselecteerde huurplatformen, en welke (fijnmazige) criteria zijn realistisch te ondersteunen op basis van publiek beschikbare data?}
+  \item \markDVProb{Welke technische en juridische randvoorwaarden beïnvloeden geautomatiseerde monitoring van huurplatformen (bv. robots.txt, gebruiksvoorwaarden, databank- en privacyaspecten)?}
+\end{enumerate}
+
+\subsection*{Deelvragen -- oplossingsdomein}
+
+\begin{enumerate}
+  \setcounter{enumi}{3}
+  \item \markDVOpl{Welke architectuur is geschikt om listings periodiek te verzamelen, te normaliseren en te vergelijken met gebruikersprofielen op een onderhoudbare manier?}
+  \item \markDVOpl{Hoe kunnen gebruikerscriteria gemodelleerd worden als begrijpelijke IF--THEN/regelgebaseerde filters die tegelijk uitbreidbaar blijven?}
+  \item \markDVOpl{Hoe kan deduplicatie worden aangepakt zodat dezelfde woning die op meerdere platformen verschijnt niet leidt tot dubbele meldingen?}
+  \item \markDVOpl{Welke evaluatiecriteria (correctheid van matches, deduplicatiekwaliteit, meldingsfrequentie en bruikbaarheid) zijn relevant, en hoe kunnen deze gemeten worden in een proof-of-concept?}
+\end{enumerate}
+
+\subsection*{Doelstellingen}
+
+Het onderzoek heeft als doel om:
+\begin{itemize}
+  \item inzicht te verwerven in zoekgedrag, noden en pijnpunten van kandidaat-huurders;
+  \item een onderbouwde architectuur en ontwerp uit te werken voor een platform-onafhankelijke alerts-tool;
+  \item een proof-of-concept te implementeren die listings uit minstens twee bronnen verwerkt, normaliseert, dedupliceert en alerts genereert;
+  \item de PoC te evalueren met meetbare criteria en hieruit aanbevelingen te formuleren over haalbaarheid en meerwaarde.
+\end{itemize}
+
+%---------- Literatuurstudie ---------------------------------------------------
+
+\sloppy
+\section{Literatuurstudie}
+\label{sec:literatuurstudie}
+
+In deze literatuurstudie kijk ik naar wat er al bekend is over (1) online woningzoeken en waarom dat soms lastig is, en (2) welke technieken bruikbaar zijn om een platform-onafhankelijke immo-alerttool te bouwen. Ik volg daarbij de deelvragen uit Sectie~2: eerst het probleemdomein, daarna het oplossingsdomein.
+
+\subsection*{Online woningzoekgedrag en fragmentatie}
+
+Veel mensen zoeken vandaag online naar een woning. Onderzoek toont dat gebruikers vooral werken met filters en zoekpatronen om snel een selectie te maken, maar dat timing een grote rol speelt: als je te laat kijkt, kan een interessant pand al weg zijn \autocite{rae2015online}. Ook voor België wordt online data gebruikt om marktgedrag te bestuderen \autocite{vandenbergh2024seller}. Daarnaast geven praktijkrapporten (bv. over huurdersprofielen en voorkeuren) een idee welke criteria vaak belangrijk zijn in een zoektocht, zoals prijs, locatie en woningtype \autocite{cbre2024tenant}. Dit ondersteunt het probleem dat woningzoeken vaak versnipperd is over meerdere websites en dat snel nieuwe aanbiedingen zien een voordeel kan zijn.
+
+\subsection*{Notificaties en relevantie}
+
+Alerts zijn pas nuttig als je er niet te veel krijgt. Onderzoek rond notificaties toont dat te veel meldingen storend kan zijn en zelfs stress of slechtere focus kan veroorzaken \autocite{ohly2023notifications}. Voor een immo-alerttool betekent dat: meldingen moeten zo relevant mogelijk zijn, en dubbele meldingen moeten zoveel mogelijk vermeden worden. Daarom zijn zaken zoals deduplicatie (dubbele panden herkennen), bundelen van meldingen en instelbare frequentie belangrijk.
+
+\subsection*{Regelgebaseerde configuratie (IF--THEN) voor eindgebruikers}
+
+Bij veel apps kan je acties instellen via eenvoudige regels (IF--THEN), zoals bij IFTTT. Studies tonen dat dit voor eindgebruikers werkt als de regels simpel blijven en de interface duidelijk is \autocite{ur2014smart, ur2016ifttt}. Dat is relevant voor deze bachelorproef, omdat gebruikers hun voorkeuren (bv. prijsrange, regio, aantal slaapkamers) liefst makkelijk moeten kunnen instellen. Ook is het nuttig dat de tool kan tonen \emph{waarom} een pand matcht, zodat meldingen transparant blijven.
+
+\subsection*{Data-extractie en randvoorwaarden}
+
+Als platforms geen publieke API aanbieden, is web scraping een mogelijke manier om data op te halen. Daar zijn wel risico’s bij: websites kunnen hun HTML veranderen, en je moet rekening houden met foutafhandeling en “polite” crawling (bv. niet te snel requests sturen) \autocite{mitchell2018webscraping}. Het Robots Exclusion Protocol (\texttt{robots.txt}) is een belangrijke richtlijn om te zien wat websites wel/niet willen toelaten voor crawlers \autocite{rfc9309}. Daarnaast moet je opletten met juridische aspecten zoals databankrechten en privacy \autocite{eu1996databases, eu2016gdpr}. Daarom worden de randvoorwaarden per platform meegenomen bij het kiezen van bronnen voor de proof-of-concept.
+
+\subsection*{Normalisatie en deduplicatie}
+
+Als je data van meerdere websites samenbrengt, moet je eerst alles in eenzelfde formaat steken (normalisatie). Daarna moet je dubbele advertenties herkennen: hetzelfde pand kan op verschillende sites staan met kleine verschillen in tekst of prijs. In de literatuur heet dit vaak \emph{entity resolution} of record matching: je probeert records uit verschillende bronnen te herkennen als “dezelfde” entiteit \autocite{papadakis2020er}. Klassieke aanpakken zoals het merge/purge-probleem beschrijven hoe je zulke data kan samenvoegen en duplicates kan verminderen \autocite{hernandez1995mergepurge}. Voor HouseHunt Alerts betekent dit dat er een beperkt intern datamodel nodig is (kernvelden zoals prijs, regio, type, slaapkamers, bron-URL) en een matchstrategie om dubbele meldingen te beperken.
+
+\subsection*{Synthese}
+
+Samengevat toont de literatuur dat woningzoeken vaak tijdsgevoelig en versnipperd is, en dat een goede alerttool vooral waarde heeft als meldingen relevant blijven. Verder blijkt dat IF--THEN regels een haalbare manier zijn om voorkeuren instelbaar te maken, en dat scraping/deduplicatie technisch kan maar rekening moet houden met betrouwbaarheid en randvoorwaarden. Deze inzichten bepalen mee hoe de proof-of-concept ontworpen en geëvalueerd wordt.
+
+%---------- Methodologie -------------------------------------------------------
+
+\section{Voorgestelde methodologie}
+\label{sec:methodologie}
+
+Dit onderzoek volgt een toegepast onderzoeksdesign met een analyserend luik (probleemdomein) en een technisch luik (oplossingsdomein). Het plan wordt uitgewerkt als een reproduceerbaar stappenplan met concrete outputs per fase.
+
+\subsection*{Fase 1 -- Probleemverkenning en requirements}
+
+Doel: noden en verwachtingen van kandidaat-huurders expliciteren en vertalen naar requirements.
+\begin{itemize}
+  \item \textbf{Platformscan:} een beknopte vergelijking van alerts en filters op de gekozen huurplatformen (wat kan je instellen, welke velden worden getoond, welke beperkingen zijn er?).
+  \item \textbf{Interviews:} semigestructureerde interviews met kandidaat-huurders (richtwaarde: 5--8). De interviewgids focust op zoekgedrag, frustraties (bv. dubbele listings, gemiste opportuniteiten), en gewenste criteria.
+\end{itemize}
+\textbf{Output:} requirementsdocument met functionele requirements, niet-functionele requirements en prioriteiten (MoSCoW).
+
+\subsection*{Fase 2 -- Datainventaris en randvoorwaardenanalyse}
+
+Doel: bepalen welke criteria en bronnen haalbaar zijn binnen technische en juridische randvoorwaarden.
+\begin{itemize}
+  \item \textbf{Datainventaris per platform:} welke attributen zijn publiek beschikbaar (prijs, locatie, type, slaapkamers, beschrijving, beschikbaarheid, \ldots), welke kwaliteit/consistentie hebben die velden, en hoe vaak verandert de structuur?
+  \item \textbf{Randvoorwaardenanalyse:} per platform worden \texttt{robots.txt} en gebruiksvoorwaarden nagekeken, en worden databank- en privacyaspecten meegenomen op hoofdlijnen.
+\end{itemize}
+\textbf{Output:} tabel met per platform (a) beschikbare attributen, (b) haalbaarheid van extractie, (c) beperkingen/risico’s. Deze tabel bepaalt de uiteindelijke scope van de PoC (minstens twee bronnen binnen haalbare randvoorwaarden).
+
+\subsection*{Fase 3 -- Ontwerp: datamodel, rule model en deduplicatie}
+
+Doel: ontwerpkeuzes expliciteren zodat implementatie en evaluatie mogelijk worden.
+\begin{itemize}
+  \item \textbf{Intern datamodel:} definiëren van een uniform model voor huurpanden (kernattributen zoals prijs, regio, type, slaapkamers, bron-URL, publicatietijd).
+  \item \textbf{Rule model:} starten met een beperkt maar uitbreidbaar model (bv. AND-criteria, prijsrange, regio, type, slaapkamers; later uitbreidbaar met extra criteria). Ontwerpdoel is dat gebruikers kunnen zien \emph{waarom} een listing matcht.
+  \item \textbf{Deduplicatie:} ontwerpen van een matchingstrategie om dezelfde woning over bronnen heen te herkennen (bv. combinatie van locatie/adres-indicatoren, prijsband, woningkenmerken en broninformatie).
+\end{itemize}
+\textbf{Output:} datamodel (diagram), rule-representatie (bv. JSON-schema) en beschrijving van deduplicatielogica en matchingcriteria.
+
+\subsection*{Fase 4 -- Implementatie proof-of-concept}
+
+Doel: een werkende PoC bouwen die end-to-end het proces demonstreert.
+De PoC omvat:
+\begin{enumerate}
+  \item een \textbf{collector} die periodiek listings ophaalt (binnen scope en randvoorwaarden);
+  \item een \textbf{verwerkingspipeline} die normaliseert en dedupliceert;
+  \item een \textbf{rule engine} die nieuwe listings vergelijkt met opgeslagen zoekprofielen;
+  \item een \textbf{notificatiemechanisme} (bv. e-mail of webinterface) met instelbare frequentie (direct of gebundeld).
+\end{enumerate}
+\textbf{Output:} werkende PoC + technische documentatie + logging (doorlooptijd, aantal records, fouten) voor evaluatie.
+
+\subsection*{Fase 5 -- Evaluatie}
+
+Doel: haalbaarheid en meerwaarde beoordelen met meetbare criteria.
+\begin{itemize}
+  \item \textbf{Correctheid van matches:} testen met vaste zoekprofielen en een gecontroleerde set listings; rapportering met eenvoudige metrics (bv. \# correcte matches, \# false positives).
+  \item \textbf{Deduplicatiekwaliteit:} meten van \% dubbele meldingen vóór/na deduplicatie en het aantal foutieve samenvoegingen (false merges) in een steekproef.
+  \item \textbf{Bruikbaarheid:} kleinschalige gebruikersevaluatie met testgebruikers (taken: profiel aanmaken, criteria aanpassen, meldingen interpreteren) en korte feedback (bv. SUS of taak-succes + kwalitatieve opmerkingen).
+\end{itemize}
+\textbf{Output:} testresultaten (tabellen/grafieken), samenvatting van gebruikersfeedback, en conclusies + aanbevelingen.
+
+%---------- Verwachte resultaten en bijdrage -----------------------------------
+
+\sloppy
+\section{Verwachte resultaten en bijdrage}
+\label{sec:verwachte-resultaten}
+
+De verwachte output van dit onderzoek is een onderbouwde proof-of-concept van HouseHunt Alerts: een platform-onafhankelijke tool die huurlistings uit meerdere bronnen verzamelt, normaliseert, dedupliceert en gebruikers verwittigt wanneer nieuwe panden voldoen aan hun criteria.
+
+De verwachte bijdrage bestaat uit:
+\begin{itemize}
+  \item een overzicht van noden en frustraties van kandidaat-huurders in het digitale zoekproces;
+  \item een datainventaris en haalbaarheidsoverzicht per platform (attributen, beperkingen, randvoorwaarden);
+  \item een uniform datamodel en een eerste rule model voor configureerbare zoekprofielen;
+  \item meetresultaten over (a) match-correctheid, (b) deduplicatie, (c) meldingsfrequentie en (d) bruikbaarheid;
+  \item aanbevelingen voor verdere uitbouw (meer bronnen, richer rules, mobiele notificaties, ranking).
+\end{itemize}
+
+Hoewel het resultaat niet productierijp hoeft te zijn, moet de PoC aantonen dat het concept technisch uitvoerbaar is binnen de afgebakende scope, en dat het potentieel heeft om de tijdsbesteding aan manuele zoekacties te verminderen en de kwaliteit van meldingen te verhogen.
+
+%---------- Verwacht resultaat en conclusie -----------------------------------
+
+\sloppy
+\section{Verwacht resultaat en conclusie}
+\label{sec:verwacht_resultaat_conclusie}
+
+Op basis van de probleemverkenning wordt verwacht dat kandidaat-huurders vooral hinder ondervinden van (a) fragmentatie over platformen, (b) tijdsdruk en (c) dubbele/irrelevante meldingen. Het verwachte resultaat is dat HouseHunt Alerts in een proof-of-concept aantoonbaar:
+\begin{itemize}
+  \item sneller nieuw aanbod detecteert dan manuele controle (binnen het gekozen monitoringinterval);
+  \item minder dubbele meldingen verstuurt dankzij deduplicatie;
+  \item voor testgebruikers duidelijk maakt waarom een pand matcht (transparantie van criteria);
+  \item als bruikbaar wordt ervaren om het zoekproces te ondersteunen (op basis van taak-succes en korte feedback).
+\end{itemize}
+
+De conclusies van het onderzoek zullen afhangen van de evaluatieresultaten, maar beogen minstens:
+(1) een uitspraak over technische haalbaarheid binnen de afgebakende scope en randvoorwaarden,
+(2) inzicht in de kwaliteit van matching en deduplicatie,
+en (3) aanbevelingen voor verdere uitbouw (meer bronnen, rijkere regels, andere notificatiekanalen of rankingmechanismen).
+
+
+\clearpage
+\appendix
+\section{Planning}
+\label{app:planning}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\linewidth]{gantt.png}
+  \caption{Planning bachelorproef (Gantt chart).}
+\end{figure}
