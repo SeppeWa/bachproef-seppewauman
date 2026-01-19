@@ -17,67 +17,71 @@
 \section{Inleiding}
 \label{sec:inleiding}
 
-De Belgische huurmarkt is sterk gedigitaliseerd: het merendeel van het aanbod verschijnt op online platformen. Voor kandidaat-huurders is het vinden van een geschikte woning echter vaak tijdsgevoelig. Interessante panden zijn soms slechts korte tijd zichtbaar, waardoor wie niet frequent zoekt sneller opportuniteiten mist. Tegelijk is het aanbod gefragmenteerd: dezelfde woningen verschijnen op meerdere platformen met verschillende filtermogelijkheden en alertmechanismen.
+De Belgische huurmarkt is sterk verschoven naar online platformen: het grootste deel van het beschikbare aanbod wordt daar gepubliceerd. Voor kandidaat-huurders is het zoekproces bovendien tijdsgevoelig. Pandjes die aansluiten bij het budget en de locatievoorkeuren zijn vaak snel weg, waardoor regelmatig zoeken een voordeel oplevert. Tegelijk is het aanbod versnipperd. Dezelfde woning verschijnt niet zelden op meerdere platformen, elk met eigen filters, presentatie en meldingsmechanismen.
 
-Bestaande e-mailalerts of zoekmeldingen zijn meestal platformgebonden en bieden vaak beperkte controle over meldingsfrequentie, transparantie en fijnmazige criteria. Kandidaten lossen dit in de praktijk op door meerdere websites manueel te controleren, zoekopdrachten opnieuw uit te voeren en meldingen te combineren. Dit is tijdrovend en verhoogt de kans op dubbele meldingen (hetzelfde pand op verschillende sites) of irrelevante meldingen door te brede zoekinstellingen.
+Veel platformen bieden zoekmeldingen of e-mailalerts, maar die zijn platformgebonden en laten vaak beperkte controle toe over criteria, transparantie en meldingskwaliteit. In de praktijk combineren kandidaat-huurders daarom meerdere websites: ze voeren dezelfde zoekopdracht opnieuw uit, houden verschillende alerts actief en vergelijken resultaten manueel. Dat kost tijd en zorgt voor meldingsruis. Dubbele meldingen ontstaan wanneer één woning op meerdere platformen wordt aangeboden; irrelevante meldingen ontstaan wanneer filters te grof zijn of wanneer platformen dezelfde voorkeuren niet op dezelfde manier ondersteunen.
 
-Deze bachelorproef vertrekt vanuit de concrete behoefte aan een centraal en platform-onafhankelijk mechanisme waarmee kandidaat-huurders hun voorkeuren één keer kunnen vastleggen en automatisch verwittigd kunnen worden wanneer nieuw aanbod verschijnt dat aan die voorkeuren voldoet. Het onderzoek resulteert in een werkende proof-of-concept (PoC) en een onderbouwde evaluatie van de haalbaarheid en meerwaarde.
+Deze bachelorproef onderzoekt binnen die context welke ontwerpkeuzes in een centraal, platform-onafhankelijk zoek- en alertmechanisme het meest bijdragen aan het verminderen van dubbele en irrelevante meldingen. Het gaat daarbij niet om het afleveren van een product, maar om het vergelijken van ontwerpkeuzes voor normalisatie, matching/filtering en deduplicatie over meerdere bronnen heen.
 
-Om het onderzoek haalbaar te houden, wordt de scope afgebakend tot:
+Om die ontwerpkeuzes systematisch te kunnen analyseren, wordt een beperkte proof-of-concept gebruikt als onderzoeksinstrument. In deze demonstrator worden meerdere varianten van matching- en deduplicatiestrategieën toegepast op huurdata afkomstig van minstens twee Belgische huurplatformen. De evaluatie gebeurt aan de hand van meetbare criteria (onder meer aandeel duplicaten, false positives en gemiste relevante panden) en wordt aangevuld met feedback van testgebruikers over ervaren relevantie.
+
+Om het onderzoek haalbaar en afgebakend te houden, wordt de scope beperkt tot:
 \begin{itemize}
   \item huurpanden (geen koopmarkt);
-  \item een beperkte selectie van grote Belgische huurplatformen (minstens twee bronnen binnen de haalbare randvoorwaarden);
-  \item een proof-of-concept met een representatieve set criteria (bv. prijs, regio, type woning, aantal slaapkamers, beschikbaarheid, en minstens één “extra” criterium zoals huisdierenbeleid indien de data dit toelaat);
-  \item een webapplicatie als demonstrator, niet een productierijp systeem.
+  \item een beperkte selectie van grote Belgische huurplatformen (minstens twee bronnen binnen haalbare technische en juridische randvoorwaarden);
+  \item een representatieve maar beperkte set zoekcriteria (bv. prijs, regio, type woning en aantal slaapkamers);
+  \item een technische demonstrator die uitsluitend dient ter ondersteuning van het onderzoek en niet als productierijp systeem.
 \end{itemize}
 
-%---------- Probleemstelling, onderzoeksvraag en doelstellingen ----------------
 
+%---------- Probleemstelling, onderzoeksvraag en doelstellingen ----------------
 \sloppy
 \section{Probleemstelling, onderzoeksvraag en doelstellingen}
 \label{sec:onderzoeksvraag}
 
 \subsection*{Probleemstelling}
 
-\markProbleem{Kandidaat-huurders op de Belgische markt ervaren dat het zoekproces naar huurpanden:
-(1) gefragmenteerd is over meerdere platformen,
-(2) tijdrovend wordt door herhaalde manuele controles,
-en (3) leidt tot dubbele of irrelevante meldingen wanneer men platformgebonden alerts combineert.
-Er is nood aan een mechanisme dat het opvolgen van nieuw aanbod automatiseert op basis van persoonlijke criteria, onafhankelijk van één specifiek platform.}
+Voor kandidaat-huurders in België is het zoeken naar een geschikt huurpand sterk verspreid over meerdere online vastgoedplatformen. Wie snel wil reageren op nieuw aanbod, raadpleegt daardoor vaak meerdere websites en herhaalt dat proces regelmatig. In een markt waar geschikte panden snel verdwijnen, maakt die versnippering het zoeken tijdrovend en onoverzichtelijk.
 
-\subsection*{Hoofdonderzoeksvraag}
+Veel platforms bieden zoekmeldingen of e-mailalerts, maar die werken enkel binnen één platform en hebben vaak beperkte of weinig fijnmazige filtermogelijkheden. Wanneer kandidaat-huurders verschillende platformen combineren, ontstaan twee concrete problemen. Ten eerste komen dubbele meldingen vaak voor omdat dezelfde woning op meerdere platformen wordt gepubliceerd. Ten tweede leiden beperkte filters tot irrelevante meldingen: meldingen die niet (of slechts gedeeltelijk) aansluiten bij de zoekvoorkeuren van de gebruiker. Het gevolg is meldingsmoeheid en minder overzicht, waardoor belangrijke meldingen net gemist kunnen worden.
+
+Een centraal, platform-onafhankelijk zoek- en alertmechanisme kan deze problemen in principe verminderen, maar het is vandaag onduidelijk welke ontwerpkeuzes daarvoor het meest doeltreffend zijn. In het bijzonder ontbreekt inzicht in de impact van verschillende aanpakken voor (i) normalisatie van data uit meerdere bronnen, (ii) matching en filtering, en (iii) deduplicatie over platformen heen. Dit onderzoek richt zich daarom op het vergelijken van die ontwerpkeuzes en het empirisch aantonen van hun effect op dubbele en irrelevante meldingen.
+
+\subsection*{Onderzoeksvraag}
 
 \begin{quote}
-\markHoofd{Hoe kan een platform-onafhankelijke, regelgebaseerde alerts-tool ontworpen en geïmplementeerd worden die kandidaat-huurders op de Belgische huurmarkt automatisch verwittigt wanneer nieuwe panden verschijnen die voldoen aan hun persoonlijke criteria, met minimale dubbele en irrelevante meldingen?}
+Welke ontwerpkeuzes in een centraal, platform-onafhankelijk zoek- en alertmechanisme voor de Belgische huurmarkt verminderen dubbele en irrelevante meldingen het meest, zonder dat relevante opportuniteiten onnodig verloren gaan?
 \end{quote}
 
 \subsection*{Deelvragen -- probleemdomein}
 
 \begin{enumerate}
-  \item \markDVProb{Hoe verloopt het huidige zoek- en selectieproces van kandidaat-huurders, en welke frustraties en noden ervaren zij (bv. timing, fragmentatie, dubbele listings, beperkingen van filters)?}
-  \item \markDVProb{Welke data-attributen en filtermogelijkheden bieden de geselecteerde huurplatformen, en welke (fijnmazige) criteria zijn realistisch te ondersteunen op basis van publiek beschikbare data?}
-  \item \markDVProb{Welke technische en juridische randvoorwaarden beïnvloeden geautomatiseerde monitoring van huurplatformen (bv. robots.txt, gebruiksvoorwaarden, databank- en privacyaspecten)?}
+  \item Welke vastgoedplatformen zijn relevant voor kandidaat-huurders in België, en welke beperkingen vertonen de huidige platformgebonden zoek- en alertmechanismen op vlak van filtering, meldingskwaliteit en overlap tussen platformen?
+  \item Welke minimale set van metadata is nodig om een platform-onafhankelijk zoek- en filterprofiel toe te passen (bv. prijs, locatie, type woning, slaapkamers, oppervlakte, beschikbaarheid), en in welke mate is die informatie consistent en publiek beschikbaar op de geselecteerde platformen?
+  \item Welke technische en juridische randvoorwaarden bepalen de haalbaarheid van geautomatiseerde monitoring van de geselecteerde platformen (bv. \texttt{robots.txt}, gebruiksvoorwaarden, databankrechten en privacy), en welke beperkingen leggen die randvoorwaarden op aan dataverzameling en hergebruik?
 \end{enumerate}
 
 \subsection*{Deelvragen -- oplossingsdomein}
 
 \begin{enumerate}
   \setcounter{enumi}{3}
-  \item \markDVOpl{Welke architectuur is geschikt om listings periodiek te verzamelen, te normaliseren en te vergelijken met gebruikersprofielen op een onderhoudbare manier?}
-  \item \markDVOpl{Hoe kunnen gebruikerscriteria gemodelleerd worden als begrijpelijke IF--THEN/regelgebaseerde filters die tegelijk uitbreidbaar blijven?}
-  \item \markDVOpl{Hoe kan deduplicatie worden aangepakt zodat dezelfde woning die op meerdere platformen verschijnt niet leidt tot dubbele meldingen?}
-  \item \markDVOpl{Welke evaluatiecriteria (correctheid van matches, deduplicatiekwaliteit, meldingsfrequentie en bruikbaarheid) zijn relevant, en hoe kunnen deze gemeten worden in een proof-of-concept?}
+  \item Welke architectuur is het meest geschikt om een centraal zoek- en alertmechanisme te realiseren (scheiding tussen dataverzameling, normalisatie, matching/deduplicatie en notificatie), en hoe beïnvloedt die architectuur de uitbreidbaarheid (nieuwe bron toevoegen) en onderhoudbaarheid (wijzigingen in bronstructuur)?
+  \item Welke matching- en filterstrategieën leveren de beste balans tussen het beperken van irrelevante meldingen en het vermijden van gemiste opportuniteiten (bv. strikt filteren versus tolerant/scoring-gebaseerd), en welke parameters zijn daarbij bepalend?
+  \item Welke deduplicatiestrategieën over meerdere bronnen heen verlagen het aandeel dubbele meldingen het sterkst met een aanvaardbaar risico op foutieve samenvoegingen (bv. exact match op adres versus combinatie van kenmerken zoals prijsband, locatie en woningkenmerken)?
+  \item Welke evaluatiemethode en meetcriteria zijn geschikt om de impact van deze ontwerpkeuzes te vergelijken (bv. aandeel duplicaten, aantal false positives, aantal gemiste relevante panden, en gebruikersperceptie), en in welke mate stemmen de meetresultaten overeen met feedback van testgebruikers?
 \end{enumerate}
 
 \subsection*{Doelstellingen}
 
-Het onderzoek heeft als doel om:
+Dit onderzoek heeft als doel om:
 \begin{itemize}
-  \item inzicht te verwerven in zoekgedrag, noden en pijnpunten van kandidaat-huurders;
-  \item een onderbouwde architectuur en ontwerp uit te werken voor een platform-onafhankelijke alerts-tool;
-  \item een proof-of-concept te implementeren die listings uit minstens twee bronnen verwerkt, normaliseert, dedupliceert en alerts genereert;
-  \item de PoC te evalueren met meetbare criteria en hieruit aanbevelingen te formuleren over haalbaarheid en meerwaarde.
+  \item de knelpunten in het huidige zoekproces van kandidaat-huurders in België te beschrijven, met focus op fragmentatie, tijdsdruk en meldingskwaliteit (dubbele en irrelevante meldingen);
+  \item de relevante platformen en de minimaal noodzakelijke metadata te bepalen om zoekprofielen platform-onafhankelijk te kunnen toepassen;
+  \item meerdere varianten van matching/filtering en deduplicatie te ontwerpen en systematisch te vergelijken binnen dezelfde context en dataset;
+  \item de impact van die varianten empirisch te evalueren aan de hand van meetbare criteria (o.a. duplicaten, false positives en gemiste relevante panden), aangevuld met gebruikersfeedback;
+  \item op basis van de resultaten onderbouwde conclusies en aanbevelingen te formuleren over doeltreffende ontwerpkeuzes en de beperkingen van een centraal, platform-onafhankelijk zoek- en alertmechanisme.
 \end{itemize}
+
 
 %---------- Literatuurstudie ---------------------------------------------------
 
@@ -85,31 +89,60 @@ Het onderzoek heeft als doel om:
 \section{Literatuurstudie}
 \label{sec:literatuurstudie}
 
-In deze literatuurstudie kijk ik naar wat er al bekend is over (1) online woningzoeken en waarom dat soms lastig is, en (2) welke technieken bruikbaar zijn om een platform-onafhankelijke immo-alerttool te bouwen. Ik volg daarbij de deelvragen uit Sectie~2: eerst het probleemdomein, daarna het oplossingsdomein.
+Deze literatuurstudie ondersteunt de probleemstelling en onderzoeksvraag uit Sectie~\ref{sec:onderzoeksvraag}. 
+De focus ligt daarom niet op het “bouwen van een tool”, maar op kennis die nodig is om ontwerpkeuzes voor een centraal, platform-onafhankelijk zoek- en alertmechanisme te vergelijken: (i) waarom fragmentatie en meldingsruis een probleem zijn, (ii) hoe je data uit meerdere bronnen vergelijkbaar maakt, (iii) welke matching- en deduplicatiestrategieën typisch gebruikt worden, en (iv) hoe je het effect daarvan meet.
 
-\subsection*{Online woningzoekgedrag en fragmentatie}
+\subsection*{Tijdsdruk en fragmentatie bij online woningzoeken}
 
-Veel mensen zoeken vandaag online naar een woning. Onderzoek toont dat gebruikers vooral werken met filters en zoekpatronen om snel een selectie te maken, maar dat timing een grote rol speelt: als je te laat kijkt, kan een interessant pand al weg zijn \autocite{rae2015online}. Ook voor België wordt online data gebruikt om marktgedrag te bestuderen \autocite{vandenbergh2024seller}. Daarnaast geven praktijkrapporten (bv. over huurdersprofielen en voorkeuren) een idee welke criteria vaak belangrijk zijn in een zoektocht, zoals prijs, locatie en woningtype \autocite{cbre2024tenant}. Dit ondersteunt het probleem dat woningzoeken vaak versnipperd is over meerdere websites en dat snel nieuwe aanbiedingen zien een voordeel kan zijn.
+Woningzoekgedrag is de voorbije jaren sterk online geworden. Studies tonen dat gebruikers vaak herhaaldelijk zoeken en filters gebruiken om snel een selectie te maken, en dat timing mee bepaalt welke aanbiedingen men effectief ziet \autocite{rae2015housingsearch}. 
+Voor België wordt ook met online listingdata gewerkt om zoekactiviteit en marktgedrag te analyseren \autocite{vandenbergh2024belgiumsearch}. 
+Deze literatuur ondersteunt het vertrekpunt van deze bachelorproef: in een gefragmenteerd landschap (meerdere platformen) stijgt de kans op overlap tussen resultaten en wordt het opvolgen van nieuw aanbod snel tijdrovend.
 
-\subsection*{Notificaties en relevantie}
+\subsection*{Meldingskwaliteit en meldingsruis}
 
-Alerts zijn pas nuttig als je er niet te veel krijgt. Onderzoek rond notificaties toont dat te veel meldingen storend kan zijn en zelfs stress of slechtere focus kan veroorzaken \autocite{ohly2023notifications}. Voor een immo-alerttool betekent dat: meldingen moeten zo relevant mogelijk zijn, en dubbele meldingen moeten zoveel mogelijk vermeden worden. Daarom zijn zaken zoals deduplicatie (dubbele panden herkennen), bundelen van meldingen en instelbare frequentie belangrijk.
+Een alertmechanisme is pas nuttig als meldingen relevant blijven. Onderzoek rond notificaties toont dat frequente of storende meldingen de belasting verhogen en ertoe leiden dat gebruikers meldingen negeren of uitschakelen \autocite{ohly2023notifications}. 
+Voor deze bachelorproef is dat vooral belangrijk om twee begrippen scherp te houden:
+\begin{itemize}
+  \item \textbf{dubbele meldingen}: dezelfde woning verschijnt meer dan één keer;
+  \item \textbf{irrelevante meldingen}: meldingen die niet overeenkomen met het zoekprofiel (false positives).
+\end{itemize}
+Omdat strengere filters ook relevante panden kunnen missen, is het zinvol om in de evaluatie ook \textbf{gemiste relevante panden} (false negatives) mee te nemen.
 
-\subsection*{Regelgebaseerde configuratie (IF--THEN) voor eindgebruikers}
+\subsection*{Normalisatie en data-integratie over meerdere bronnen}
 
-Bij veel apps kan je acties instellen via eenvoudige regels (IF--THEN), zoals bij IFTTT. Studies tonen dat dit voor eindgebruikers werkt als de regels simpel blijven en de interface duidelijk is \autocite{ur2014smart, ur2016ifttt}. Dat is relevant voor deze bachelorproef, omdat gebruikers hun voorkeuren (bv. prijsrange, regio, aantal slaapkamers) liefst makkelijk moeten kunnen instellen. Ook is het nuttig dat de tool kan tonen \emph{waarom} een pand matcht, zodat meldingen transparant blijven.
+Wanneer data van meerdere platformen samenkomt, zijn velden en formaten zelden identiek. In data-integratie wordt dit doorgaans aangepakt door een beperkt intern schema te definiëren en brondata te normaliseren \autocite{rahm2001schemamatching}. 
+Voor vastgoeddata betekent dit in de praktijk: een eenduidige representatie voor kernvelden zoals prijs, locatie, type woning en aantallen (bv.\ slaapkamers), en het expliciet documenteren van normalisatieregels. Die stap is nodig om matching en deduplicatie eerlijk te kunnen vergelijken.
 
-\subsection*{Data-extractie en randvoorwaarden}
+\subsection*{Matching en deduplicatie (entity resolution)}
 
-Als platforms geen publieke API aanbieden, is web scraping een mogelijke manier om data op te halen. Daar zijn wel risico’s bij: websites kunnen hun HTML veranderen, en je moet rekening houden met foutafhandeling en “polite” crawling (bv. niet te snel requests sturen) \autocite{mitchell2018webscraping}. Het Robots Exclusion Protocol (\texttt{robots.txt}) is een belangrijke richtlijn om te zien wat websites wel/niet willen toelaten voor crawlers \autocite{rfc9309}. Daarnaast moet je opletten met juridische aspecten zoals databankrechten en privacy \autocite{eu1996databases, eu2016gdpr}. Daarom worden de randvoorwaarden per platform meegenomen bij het kiezen van bronnen voor de proof-of-concept.
+Het herkennen van dezelfde entiteit over meerdere bronnen heet in de literatuur \emph{entity resolution} of record linkage \autocite{getoor2012er, christen2012datamatching}. 
+Een klassieke survey over duplicate detection bespreekt de typische bouwstenen: gelijkenisfuncties, blocking en de trade-off tussen nauwkeurigheid en efficiëntie \autocite{elmagarmid2007duplicate}. 
+Voor vastgoedadvertenties is er bijna altijd ruis (variaties in tekst, prijsaanpassingen, onvolledige adressen). Daarom is het logisch om twee families van strategieën te onderscheiden die ook in dit onderzoek vergeleken worden:
+\begin{itemize}
+  \item \textbf{deterministisch}: exact match op sterke sleutels (bv.\ volledig adres) of strikte combinaties van kenmerken;
+  \item \textbf{tolerant/scoring-gebaseerd}: meerdere kenmerken samen, met een drempel om records als duplicaat te beschouwen \autocite{fellegi1969recordlinkage}.
+\end{itemize}
+Die keuze heeft rechtstreeks impact op (a) het aantal duplicaten dat overblijft en (b) het risico op foutief samenvoegen.
 
-\subsection*{Normalisatie en deduplicatie}
+\subsection*{Dataverzameling en randvoorwaarden}
 
-Als je data van meerdere websites samenbrengt, moet je eerst alles in eenzelfde formaat steken (normalisatie). Daarna moet je dubbele advertenties herkennen: hetzelfde pand kan op verschillende sites staan met kleine verschillen in tekst of prijs. In de literatuur heet dit vaak \emph{entity resolution} of record matching: je probeert records uit verschillende bronnen te herkennen als “dezelfde” entiteit \autocite{papadakis2020er}. Klassieke aanpakken zoals het merge/purge-probleem beschrijven hoe je zulke data kan samenvoegen en duplicates kan verminderen \autocite{hernandez1995mergepurge}. Voor HouseHunt Alerts betekent dit dat er een beperkt intern datamodel nodig is (kernvelden zoals prijs, regio, type, slaapkamers, bron-URL) en een matchstrategie om dubbele meldingen te beperken.
+Als er geen API beschikbaar is, kan crawling/scraping gebruikt worden, maar dat vraagt een voorzichtige aanpak: wijzigingen aan websites en “polite” crawling zijn realistische risico’s \autocite{olston2010webcrawling}. 
+Daarnaast geeft het Robots Exclusion Protocol (robots.txt) richtlijnen die crawlers geacht worden te respecteren \autocite{rfc9309}. 
+Ten slotte bepalen juridische kaders mee wat haalbaar is: databankbescherming (EU Databankenrichtlijn) en privacywetgeving (GDPR) zijn relevante randvoorwaarden bij hergebruik en opslag \autocite{eu1996databases, eu2016gdpr}. 
+In deze bachelorproef worden die randvoorwaarden gebruikt om de selectie van bronnen en de scope van de proof-of-concept af te bakenen.
+
+\subsection*{Evaluatie: meetcriteria voor “beter”}
+
+Omdat de onderzoeksvraag draait rond impact op dubbele en irrelevante meldingen, moet de evaluatie dat ook zichtbaar maken. 
+Voor het onderscheid tussen false positives en gemiste relevante items zijn precisie en recall standaardbegrippen uit information retrieval \autocite{manning2008ir}. 
+Voor deduplicatie/ER worden gelijkaardige criteria gebruikt (bv.\ duplicaatpercentage na clustering en fouten door over- of onder-samenvoegen) \autocite{christen2012datamatching}. 
+In dit onderzoek wordt daarom gemeten: (1) aandeel duplicaten, (2) false positives, (3) gemiste relevante panden, aangevuld met korte gebruikersfeedback over ervaren relevantie.
 
 \subsection*{Synthese}
 
-Samengevat toont de literatuur dat woningzoeken vaak tijdsgevoelig en versnipperd is, en dat een goede alerttool vooral waarde heeft als meldingen relevant blijven. Verder blijkt dat IF--THEN regels een haalbare manier zijn om voorkeuren instelbaar te maken, en dat scraping/deduplicatie technisch kan maar rekening moet houden met betrouwbaarheid en randvoorwaarden. Deze inzichten bepalen mee hoe de proof-of-concept ontworpen en geëvalueerd wordt.
+De literatuur ondersteunt dat woningzoeken tijdsgevoelig is en dat fragmentatie over platformen de kans op meldingsruis verhoogt \autocite{rae2015housingsearch}. 
+Technisch wijst de literatuur erop dat normalisatie en entity resolution geen “one size fits all” hebben: keuzes rond matching en deduplicatie veroorzaken duidelijke trade-offs \autocite{getoor2012er, elmagarmid2007duplicate}. 
+Daarom vergelijkt deze bachelorproef een beperkte set van varianten (strikt vs scoring-gebaseerd; simpel vs multi-feature deduplicatie) en evalueert ze die varianten met meetcriteria die zowel meldingsruis als gemiste opportuniteiten mee in beeld brengen.
 
 %---------- Methodologie -------------------------------------------------------
 
