@@ -36,7 +36,7 @@
 
 \academicyear{2025-2026}
 
-\title{HouseHunt Alerts: een platform onafhankelijke immo-alerttool}
+\title{Robuuste webextractie op geselecteerde vastgoedplatformen: AI ondersteunde wrapper repair bij DOM-wijzigingen}
 
 % TODO: Studentnaam en emailadres invullen
 \author{Seppe Wauman}
@@ -63,16 +63,15 @@
 %   zelf
 %
 \specialisation{Mobile \& Enterprise development}
-\keywords{vastgoed, zoekalerts, web scraping, data-integratie}
+\keywords{webextractie, wrapper repair, DOM-wijzigingen, vastgoedplatformen, AI-ondersteuning}
 
 \begin{document}
 
 \begin{abstract}
-In regio’s met een hoge vraag naar huurwoningen zoals Brussel, Gent, Leuven (Centrum/universiteitssteden) volgen kandidaat huurders nieuw online aanbod vaak intensief op via online huurplatformen. In de praktijk is het zoekproces echter gefragmenteerd over meerdere vastgoedplatformen. Dezelfde woning verschijnt geregeld op meerdere platformen die elk met eigen filters en platform gebonden alerts zitten. Wie meerdere platformen combineert krijgt daardoor snel te maken met dubbele meldingen en irrelevante meldingen als de filters te beperkt zijn. Deze bachelorproef onderzoekt welke ontwerpkeuzes in een centraal platform zoek en alert mechanisme het meest bijdragen aan het verminderen van dubbele en irrelevante alerts voor huurders in België. De focus ligt op het vergelijken van ontwerpkeuzes voormatching/filtering en deduplicatie van data. Een beperkte proof of concept wordt gebruikt als onderzoeksinstrument om verschillende varianten van matching en deduplicatiestrategieën toe te passen op huurdata van de twee grote Belgische huurplatformen (Immoweb, Immovlan). Via een praktijk gebaseerde evaluatie worden de varianten vergeleken op basis van meetcriteria zoals aandeel duplicaten, false positives, gemiste relevante panden en gebruikersfeedback over ervaren relevantie. Het resultaat bestaat uit onderbouwde conclusies en aanbevelingen over ontwerpkeuzes die meldingskwaliteit verbeteren binnen een gefragmenteerde en tijdsgevoelige huurmarkt.
+Webextractie is een veelgebruikte strategie om gestructureerde gegevens te halen uit websites waarvoor geen publieke API beschikbaar is. Deze extractiemechanismen zijn echter gevoelig voor structurele wijzigingen in het DOM van de webpagina’s waaruit ze gegevens halen. Wanneer een website haar lay-out, structuur of selectors aanpast, kunnen bestaande wrappers of extractieregels falen. Dit kan leiden tot foutieve of onvolledige data en extra inspanning om de huidige extractiemechanismen aan te passen aan de nieuwe structuur. Deze bachelorproef onderzoekt hoe webextractie voor geselecteerde vastgoedplatformen robuust kan worden gehouden bij DOM-wijzigingen, en in welke mate AI-ondersteunde wrapper repair kan bijdragen aan het automatisch herstellen van het extractieproces.
+
+In het onderzoek wordt een beperkte proof of concept gemaakt waarin een klassieke webextractietechnologie wordt vergeleken met een herstelstrategie die gebruikmaakt van AI. Ze worden geëvalueerd aan de hand van criteria zoals extractiecorrectheid, herstel na structurele wijzigingen, onderhoudsinspanning en benodigde resources. Het resultaat van deze bachelorproef bestaat uit een vergelijking van herstelstrategieën en aanbevelingen voor een robuustere webextractiepipeline in de context van vastgoedplatformen.
 \end{abstract}
-
-
-
 
 
 \tableofcontents

@@ -16,293 +16,237 @@
 
 \section{Inleiding}
 \label{sec:inleiding}
+Veel toepassingen zijn afhankelijk van gestructureerde data die afkomstig is van websites waarvoor geen stabiele of publieke API beschikbaar is. Om dit probleem op te lossen, wordt vaak gebruikgemaakt van webextractie aan de hand van scrapers, wrappers, selectors of vergelijkbare technieken. Deze technieken zijn bruikbaar zolang de bronstructuur voldoende stabiel blijft. In de praktijk zijn ze echter gevoelig voor wijzigingen in de opbouw van webpagina’s. Aanpassingen in de DOM-structuur, HTML-elementen, attributen of onderliggende hiërarchie kunnen ervoor zorgen dat bestaande extractieregels geen correcte resultaten meer opleveren.
 
-De Belgische huurmarkt is sterk verschoven naar online platformen: het grootste deel van het beschikbare aanbod wordt daar gepubliceerd. Voor kandidaat huurders is het zoekproces bovendien tijdsgevoelig. Huurpanden die aansluiten bij het budget en de locatievoorkeuren verdwijnen vaak snel uit het online aanbod, waardoor regelmatig zoeken een voordeel oplevert. Tegelijk is het aanbod versnipperd. Dezelfde woning verschijnt niet zelden op meerdere platformen, elk met eigen filters, presentatie en meldingsmechanismen.
+Daarom gebruik ik in deze bachelorproef vastgoedplatformen als afgebakende casus. Op deze websites wordt informatie zoals prijs, locatie, type pand en andere kenmerken op een gestructureerde manier aangeboden. De gegevens tussen verschillende platformen zijn vergelijkbaar, maar de technische opbouw van de pagina’s kan verschillen tussen platformen en ook wijzigen naarmate de tijd verstrijkt. Voor systemen die deze informatie willen verzamelen, is het niet enkel belangrijk dat de extractie correct werkt, maar ook dat de extractie bestand is tegen structurele wijzigingen, zodat de betrouwbaarheid en onderhoudbaarheid van het systeem behouden blijven.
 
-Veel platformen bieden zoekmeldingen of e-mailalerts, maar die zijn platformgebonden en laten vaak beperkte controle toe over criteria, transparantie en meldingskwaliteit. In de praktijk combineren kandidaat huurders daarom meerdere websites: ze voeren dezelfde zoekopdracht opnieuw uit, houden verschillende alerts actief en vergelijken resultaten manueel. Dat kost tijd en zorgt voor meldingsruis. Dubbele meldingen ontstaan wanneer één woning op meerdere platformen wordt aangeboden, irrelevante meldingen ontstaan wanneer filters te grof zijn of wanneer platformen dezelfde voorkeuren niet op dezelfde manier ondersteunen.
+De focus ligt dus niet op het bouwen van een nieuw platform, maar op een technisch probleem binnen webextractie. Centraal staat de vraag hoe extractie betrouwbaar kan blijven wanneer de structuur van een website wijzigt, en welke herstelstrategieën daarvoor het meest geschikt zijn binnen een concrete context.
 
-Deze bachelorproef onderzoekt binnen die context welke ontwerpkeuzes in een centraal, platform onafhankelijk zoek en alertmechanisme het meest bijdragen aan het verminderen van dubbele en irrelevante meldingen. Het gaat daarbij niet om het afleveren van een product, maar om het vergelijken van ontwerpkeuzes voor normalisatie, matching/filtering en deduplicatie over meerdere bronnen heen.
+Binnen deze onderzoekscontext krijgt \textit{AI-ondersteunde wrapper repair} een specifieke plaats. Klassieke extractie is efficiënt en reproduceerbaar, maar vereist manuele aanpassingen bij structurele wijzigingen. AI-ondersteunde herstelstrategieën helpen hierbij om falende extractieregels volledig of semiautomatisch te detecteren en te herstellen. Langs de andere kant brengen deze technieken ook bijkomende complexiteit, resourceverbruik en vragen rond reproduceerbaarheid met zich mee. Daarom is een kritische vergelijking tussen traditionele regelgebaseerde extractiesystemen en AI-ondersteunde herstelstrategieën belangrijk.
 
-Om die ontwerpkeuzes systematisch te kunnen analyseren, wordt een beperkte proof of concept gebruikt als onderzoeksinstrument. In deze demonstrator worden meerdere varianten van matching en deduplicatiestrategieën toegepast op huurdata afkomstig van minstens twee Belgische huurplatformen. De evaluatie gebeurt aan de hand van meetbare criteria (onder meer aandeel duplicaten, false positives en gemiste relevante panden) en wordt aangevuld met feedback van testgebruikers over ervaren relevantie.
-
-Om het onderzoek haalbaar en afgebakend te houden, wordt de scope beperkt tot:
+Om het onderzoek haalbaar te houden en voldoende scherp af te bakenen, wordt de scope beperkt tot:
 \begin{enumerate}
-  \item huurpanden (geen koopmarkt);
-  \item een beperkte selectie van grote Belgische huurplatformen (minstens twee bronnen binnen haalbare technische en juridische randvoorwaarden);
-  \item een representatieve maar beperkte set zoekcriteria (bijvoorbeeld prijs, regio, type woning en aantal slaapkamers);
-  \item een technische demonstrator die uitsluitend dient ter ondersteuning van het onderzoek en niet als productierijp systeem.
+    \item een beperkte selectie van vastgoedplatformen die als concrete casus dienen;
+    \item een beperkte set publiek beschikbare gegevensvelden, bijvoorbeeld titel, prijs, locatie, type pand en bron-URL;
+    \item structurele wijzigingen in de DOM als primaire oorzaak van extractiefouten;
+    \item een proof of concept die uitsluitend dient om extractie, foutdetectie en herstelstrategieën te onderzoeken en te evalueren, en dus niet als productierijp systeem wordt opgevat.
 \end{enumerate}
 
+Vanuit deze afbakening onderzoekt deze bachelorproef hoe webextractie robuust kan worden gehouden bij structurele wijzigingen in de DOM, en in welke mate AI-ondersteunde wrapper repair een bijdrage levert. Hierbij ligt de nadruk op de vergelijking en evaluatie van welke aanpak binnen deze casus het meest geschikt is om extractie correct, onderhoudbaar en haalbaar te houden.
 
 %---------- Probleemstelling, onderzoeksvraag en doelstellingen ----------------
 \sloppy
 \section{Probleemstelling, onderzoeksvraag en doelstellingen}
-\label{sec:onderzoeksvraag}
+\label{sec:probleemstelling}
 
-\subsection*{Probleemstelling}
+\subsection{Probleemstelling}
+\label{subsec:probleemstelling}
 
-Voor kandidaat huurders in België is het zoeken naar een geschikt huurpand sterk verspreid over meerdere online vastgoedplatformen. Wie snel wil reageren op nieuw aanbod, raadpleegt daardoor vaak meerdere websites en herhaalt dat proces regelmatig. In een markt waar geschikte panden snel verdwijnen, maakt die versnippering het zoeken tijdrovend en onoverzichtelijk.
+Webextractie wordt in de praktijk gebruikt om gegevens te verzamelen van websites waarvoor geen publieke of bruikbare API beschikbaar is. De traditionele manier werkt via wrappers, selectors of regelgebaseerde extractiemechanismen die specifieke elementen uit het DOM van een webpagina halen. Deze aanpak is optimaal wanneer ze in een stabiele omgeving plaatsvindt. In de praktijk zijn webpagina’s echter gevoelig voor veranderingen in het DOM, de HTML-opbouw, attributen of de positionering van elementen. Dit kan ervoor zorgen dat bestaande extractieregels falen of onvolledige of foutieve gegevens opleveren.
 
-Veel platforms bieden zoekmeldingen of e-mailalerts, maar die werken enkel binnen één platform en hebben vaak beperkte of weinig fijnmazige filtermogelijkheden. Wanneer kandidaat huurders verschillende platformen combineren, ontstaan twee concrete problemen. Ten eerste komen dubbele meldingen vaak voor omdat dezelfde woning op meerdere platformen wordt gepubliceerd. Ten tweede leiden beperkte filters tot irrelevante meldingen: meldingen die niet (of slechts gedeeltelijk) aansluiten bij de zoekvoorkeuren van de gebruiker. Het gevolg is meldingsmoeheid en minder overzicht, waardoor belangrijke meldingen net gemist kunnen worden.
+Dit is een relevant probleem in contexten waar informatie op een semigestructureerde manier via publieke websites beschikbaar wordt gemaakt. Vastgoedplatformen vormen een geschikte casus, omdat zij vergelijkbare gegevens aanbieden, zoals prijs, locatie, type pand en andere kenmerken, terwijl de technische structuur van hun webpagina’s kan verschillen en wijzigen. Bij systemen die deze gegevens automatisch willen verzamelen, volstaat het dus niet dat de extractie enkel werkt in een stabiele omgeving. De extractie moet ook robuust zijn wanneer er veranderingen optreden aan de platformen die ze volgen.
 
-Een centraal platform onafhankelijk zoek en alertmechanisme kan deze problemen in principe verminderen, maar het is vandaag onduidelijk welke ontwerpkeuzes daarvoor het meest doeltreffend zijn. In het bijzonder ontbreekt inzicht in de impact van verschillende aanpakken voor (1) normalisatie van data uit meerdere bronnen, (2) matching en filtering, en (3) deduplicatie over platformen heen. Dit onderzoek richt zich daarom op het vergelijken van die ontwerpkeuzes en het empirisch aantonen van hun effect op dubbele en irrelevante meldingen.
+Het is mogelijk om extractieregels manueel aan te passen wanneer een website is gewijzigd, maar dit brengt extra onderhoudswerk en tijdsverlies met zich mee. Daardoor ontstaat een concreet probleem: het is onduidelijk welke aanpak het meest geschikt is om extractiefouten als gevolg van DOM-wijzigingen op te vangen en het extractieproces te herstellen. In het bijzonder is het onduidelijk welke rol AI-ondersteunde wrapper repair daarin kan spelen, rekening houdend met de afweging tussen kwaliteit, herstelvermogen, onderhoudsinspanning en benodigde resources.
 
-\subsection*{Onderzoeksvraag}
+Deze bachelorproef vertrekt vanuit de vraag hoe webextractie binnen een afgebakende vastgoedcontext robuust gehouden kan worden wanneer er veranderingen optreden in de structuur van webpagina’s. De nadruk ligt hierbij op het onderzoeken van verschillende herstelstrategieën.
+
+\subsection{Onderzoeksvraag}
+\label{subsec:onderzoeksvraag}
+
+De centrale onderzoeksvraag van deze bachelorproef luidt als volgt:
 
 \begin{quote}
-Welke ontwerpkeuzes in een centraal platform onafhankelijk zoek en alertmechanisme voor de Belgische huurmarkt verminderen dubbele en irrelevante meldingen het meest, zonder dat relevante opportuniteiten onnodig verloren gaan?
+Hoe kan webextractie voor geselecteerde vastgoedplatformen robuust worden gehouden bij structurele wijzigingen in de DOM, en in welke mate kan AI-ondersteunde wrapper repair daarbij het extractieproces herstellen?
 \end{quote}
 
-\subsection*{Deelvragen -- probleemdomein}
+\subsection{Deelvragen}
+\label{subsec:deelvragen}
+
+Om deze onderzoeksvraag te beantwoorden, wordt ze opgesplitst in deelvragen met betrekking tot zowel het probleemdomein als het oplossingsdomein.
+
+\subsubsection{Deelvragen --- probleemdomein}
+\label{subsubsec:deelvragen-probleemdomein}
 
 \begin{enumerate}
-  \item Welke vastgoedplatformen zijn relevant voor kandidaat huurders in België, en welke beperkingen vertonen de huidige platformgebonden zoek en alertmechanismen op vlak van filtering, meldingskwaliteit en overlap tussen platformen?
-  \item Welke minimale set van data is nodig om een platform onafhankelijk zoek en filterprofiel toe te passen (bijvoorbeeld prijs, locatie, type woning, slaapkamers, oppervlakte, beschikbaarheid), en in welke mate is die informatie consistent en publiek beschikbaar op de geselecteerde platformen?
-  \item Welke technische en juridische randvoorwaarden bepalen de haalbaarheid van geautomatiseerde monitoring van de geselecteerde platformen (bijvoorbeeld \texttt{robots.txt}, gebruiksvoorwaarden, databankrechten en privacy), en welke beperkingen leggen die randvoorwaarden op aan dataverzameling en hergebruik?
+    \item Welke types structurele wijzigingen in de DOM van geselecteerde vastgoedplatformen veroorzaken problemen voor klassieke webextractie?
+    \item Welke gegevensvelden zijn binnen de gekozen casus relevant om te gebruiken, en in welke mate zijn die gevoelig voor structurele wijzigingen in de bronpagina’s?
+    \item Hoe kunnen extractiefouten als gevolg van DOM-wijzigingen gedetecteerd of vastgesteld worden binnen een extractiepipeline?
+    \item Welke technische en praktische randvoorwaarden beïnvloeden de haalbaarheid van webextractie en herstelstrategieën binnen deze casus?
 \end{enumerate}
 
-\subsection*{Deelvragen -- oplossingsdomein}
+\subsubsection{Deelvragen --- oplossingsdomein}
+\label{subsubsec:deelvragen-oplossingsdomein}
 
 \begin{enumerate}
-  \setcounter{enumi}{3}
-  \item Welke architectuur is het meest geschikt om een centraal zoek en alertmechanisme te realiseren (scheiding tussen dataverzameling, normalisatie, matching/deduplicatie en notificatie), en hoe beïnvloedt die architectuur de uitbreidbaarheid (nieuwe bron toevoegen) en onderhoudbaarheid (wijzigingen in bronstructuur)?
-  \item Welke matching en filterstrategieën leveren de beste balans tussen het beperken van irrelevante meldingen en het vermijden van gemiste opportuniteiten (bijvoorbeeld strikt filteren versus scoring-gebaseerd), en welke parameters zijn daarbij bepalend?
-  \item Welke deduplicatiestrategieën over meerdere bronnen heen verlagen het aandeel dubbele meldingen het sterkst met een aanvaardbaar risico op foutieve samenvoegingen (bijvoorbeeld exact match op adres versus combinatie van kenmerken zoals prijsband, locatie en woningkenmerken)?
-  \item Welke evaluatiemethode en meetcriteria zijn geschikt om de impact van deze ontwerpkeuzes te vergelijken (bijvoorbeeld aandeel duplicaten, aantal false positives, aantal gemiste relevante panden, en gebruikersperceptie), en in welke mate stemmen de meetresultaten overeen met feedback van testgebruikers?
+    \item Welke architectuur is geschikt om extractie, foutdetectie en herstel van elkaar te scheiden binnen een robuuste webextractiepipeline?
+    \item Welke herstelstrategieën kunnen binnen de afbakening van deze bachelorproef onderzocht worden om falende webextractie na DOM-wijzigingen te herstellen?
+    \item In welke mate verbeteren AI-ondersteunde herstelstrategieën het herstelvermogen van webextractie na DOM-wijzigingen in vergelijking met een klassieke regelgebaseerde aanpak?
+    \item Welke evaluatiecriteria zijn geschikt om de verschillende aanpakken te vergelijken, bijvoorbeeld extractiecorrectheid, hersteltijd, onderhoudsinspanning en benodigde resources?
+    \item Welke aanpak biedt binnen de gekozen casus de beste balans tussen robuustheid, onderhoudbaarheid en technische haalbaarheid?
 \end{enumerate}
 
-\subsection*{Doelstellingen}
+\subsection{Doelstellingen}
+\label{subsec:doelstellingen}
 
-Dit onderzoek heeft als doel om:
+Het doel van deze bachelorproef is om een technisch onderbouwd antwoord te formuleren op het probleem van falende webextractie bij DOM-wijzigingen.
+
 \begin{enumerate}
-  \item de knelpunten in het huidige zoekproces van kandidaat huurders in België te beschrijven, met focus op fragmentatie, tijdsdruk en meldingskwaliteit (dubbele en irrelevante meldingen)
-  \item de relevante platformen en de minimaal noodzakelijke data te bepalen om zoekprofielen platform onafhankelijk te kunnen toepassen
-  \item meerdere varianten van matching/filtering en deduplicatie te ontwerpen en systematisch te vergelijken binnen dezelfde context en dataset
-  \item de impact van die varianten empirisch te evalueren aan de hand van meetbare criteria (onder anderen. duplicaten, false positives en gemiste relevante panden), aangevuld met gebruikersfeedback
-  \item op basis van de resultaten onderbouwde conclusies en aanbevelingen te formuleren over doeltreffende ontwerpkeuzes en de beperkingen van een centraal, platform onafhankelijk zoek en alertmechanisme.
+    \item inzicht te verwerven in hoe en waarom klassieke webextractie faalt wanneer de structuur van webpagina’s wijzigt;
+    \item een beperkte maar representatieve casus op te zetten met geselecteerde vastgoedplatformen en relevante gegevensvelden;
+    \item een proof of concept uit te werken waarin meerdere herstelstrategieën voor falende extractie onderzocht kunnen worden;
+    \item de gekozen aanpakken op een methodologisch verantwoorde manier te vergelijken aan de hand van meetbare criteria;
+    \item op basis van die vergelijking aanbevelingen te formuleren over welke herstelstrategie het meest geschikt is.
 \end{enumerate}
-
 
 %---------- Literatuurstudie ---------------------------------------------------
 \sloppy
 \section{Literatuurstudie}
 \label{sec:literatuurstudie}
 
-Deze literatuurstudie ondersteunt de probleemstelling en onderzoeksvraag uit Sectie~\ref{sec:onderzoeksvraag}. Ze bundelt de inzichten die nodig zijn om ontwerpkeuzes voor een centraal, platform onafhankelijk zoek en alertmechanisme objectief te vergelijken op hun impact op meldingskwaliteit. De synthese focust op vier thema’s: (1) waarom fragmentatie en tijdsdruk bij online woningzoeken leiden tot meldingsruis, (2) hoe listingdata uit meerdere vastgoedplatformen genormaliseerd kan worden tot een uniform schema, (3) welke matching en deduplicatiestrategieën gangbaar zijn en welke trade-offs ze veroorzaken, en (4) met welke meetcriteria het effect van die keuzes kan worden aangetoond (onder andere duplicaatratio, false positives en gemiste relevante panden), aangevuld met gebruikersperceptie.
+De literatuurstudie focust op wat recent onderzoek zegt over webextractie, structurele wijzigingen in webpagina’s en herstelstrategieën. De nadruk ligt hierbij niet op vastgoed als onderzoeksdomein, maar op vastgoedplatformen als concrete casus waarin ons algemener technisch probleem onderzocht kan worden. Het gaat daarbij om het falen van webextractie wanneer de DOM-structuur van een website wijzigt.
 
-\subsection*{Tijdsdruk en fragmentatie bij online woningzoeken}
+\subsection{Webextractie en kwetsbaarheid voor structurele wijzigingen}
+\label{subsec:lit-webextractie}
 
-Woningzoekgedrag is de voorbije jaren sterk online geworden. Studies tonen dat gebruikers vaak herhaaldelijk zoeken en filters gebruiken om snel een selectie te maken, en dat timing mee bepaalt welke aanbiedingen men effectief ziet \autocite{rae2015housingsearch}.
-Voor België wordt ook met online listingdata gewerkt om zoekactiviteit en marktgedrag te analyseren \autocite{vandenbergh2024belgiumsearch}.
-Dit ondersteunt het vertrekpunt van deze bachelorproef. In een gefragmenteerde sector stijgt de kans op overlap tussen resultaten en wordt het opvolgen van nieuw aanbod snel tijdrovend.
+Web information extraction is nog steeds belangrijk in de huidige online maatschappij om gestructureerde gegevens uit websites te halen. Hieruit blijkt ook dat het probleem van falende webextractie nog altijd groot is. Klassieke wrappergebaseerde aanpakken blijven gevoelig voor wijzigingen in de structuur van websites. In \textit{LIVEWEB-IE} wordt gesteld dat veel bestaande extractors steunen op statische HTML-snapshots, terwijl echte websites in de tijd veranderen. Ook een recent onderzoek beschrijft gelijkaardige problemen: regelgebaseerde wrappers zijn snel, transparant en efficiënt, maar kwetsbaar voor drift en vereisen onderhoud wanneer de bronstructuur verandert \autocite{yang2026livewebie, marineli2025controlplanes}.
 
-\subsection*{Meldingskwaliteit en meldingsruis}
+Voor deze bachelorproef is dit relevant omdat het probleem niet alleen gaat over het correct ophalen van gegevens in een stabiele situatie, maar ook over het robuust houden van extractie bij aanpassingen aan websites. Een extractor die slechts eenmalig werkt, is dus onvoldoende als onderzoeksdoel. De literatuur verschuift daarom de aandacht van pure extractie naar onderhoudbaarheid, foutdetectie en herstelbaarheid van extractiepijplijnen \autocite{yang2026livewebie, marineli2025controlplanes}.
 
-Alerts zijn pas nuttig als meldingen relevant blijven. Onderzoek rond notificaties toont dat frequente of storende meldingen ertoe leiden dat gebruikers meldingen negeren of uitschakelen \autocite{ohly2023notifications}.
-Voor deze bachelorproef is dat vooral belangrijk om twee begrippen in stand te houden:
-\begin{enumerate}
-  \item \textbf{dubbele meldingen}: dezelfde woning verschijnt meer dan één keer;
-  \item \textbf{irrelevante meldingen}: meldingen die niet overeenkomen met het zoekprofiel (false positives).
-\end{enumerate}
-Omdat strengere filters ook relevante panden kunnen missen, is het zinvol om in de evaluatie ook gemiste relevante panden  (false negatives) mee te nemen.
+\subsection{Hybride en AI-ondersteunde herstelstrategieën}
+\label{subsec:lit-hybride-ai}
 
-\subsection*{Normalisatie en data-integratie over meerdere bronnen}
+Een tweede lijn in de recente literatuur onderzoekt of volledig regelgebaseerde extractie of volledig LLM-gedreven extractie wel de beste keuze is. In plaats van volledig op één van beide te steunen, verschijnen er steeds meer hybride benaderingen. In \textit{WebLists} wordt bijvoorbeeld een agentarchitectuur voorgesteld waarbij een LLM slechts op een beperkte subset van de data wordt toegepast, waarna generaliseerbare CSS-selectors worden gebruikt om de volledige dataset efficiënter te extraheren. Volgens de auteurs behaalt die aanpak een hogere output dan bestaande web agents en verlaagt ze tegelijk de kost \autocite{bohra2025weblists}.
 
-Wanneer data van meerdere platformen samenkomt, zijn velden en formaten zelden hetzelfde. In data integratie wordt dit doorgaans aangepakt door een beperkt intern schema te definiëren en brondata te normaliseren \autocite{rahm2001schemamatching}.
-Voor vastgoeddata betekent kernvelden definiëren zoals prijs, locatie, type woning en aantallen (bijvoorbeeld\ slaapkamers), en het documenteren van normalisatieregels. Die stap is nodig om matching en deduplicatie eerlijk te kunnen vergelijken.
+Ook de recente paper van Pinterest wijst in die richting. Daar wordt een representatie gebruikt die structurele, visuele en tekstuele signalen combineert, waarna relatief eenvoudige modellen voor attribuutextractie worden ingezet. De auteurs rapporteren dat deze aanpak accurater en veel goedkoper kan zijn dan complexere LLM-gebaseerde extractie, en tegelijk op grote schaal inzetbaar blijft. Dat suggereert dat pure LLM-extractie niet vanzelfsprekend de beste keuze is wanneer schaal, kost en onderhoudbaarheid meespelen \autocite{farag2025pinterest}.
 
-\subsection*{Matching en deduplicatie (entity resolution)}
+Voor het huidige onderzoek betekent dit dat AI best niet a priori als volledige vervanger van klassieke extractie wordt voorgesteld. De literatuur ondersteunt eerder een kritische vergelijking waarbij AI een rol kan spelen als ondersteunende herstelcomponent binnen een bredere extractiepipeline \autocite{marineli2025controlplanes, bohra2025weblists, farag2025pinterest}.
 
-Het herkennen van dezelfde woning over meerdere bronnen valt onder \emph{entity resolution} of record linkage \autocite{getoor2012er, christen2012datamatching}. Literatuur over duplicate detection bespreekt de belangrijkste onderdelen zoals gelijkenisfuncties, blocking en de trade-off tussen nauwkeurigheid en efficiëntie \autocite{elmagarmid2007duplicate}. Omdat vastgoeddata vaak ruis bevat (tekstvariaties, prijsaanpassingen, onvolledige adressen), worden in dit onderzoek twee types aanpakken vergeleken:
-\begin{enumerate}
-  \item \textbf{strikt}: exact match op sterke sleutels (bijvoorbeeld volledig adres) of strikte combinaties;
-  \item \textbf{scoring-gebaseerd}: meerdere kenmerken samen, met een drempel om records als duplicaat te zien \autocite{fellegi1969recordlinkage}.
-\end{enumerate}
-Deze keuze beïnvloedt zowel het aantal overblijvende duplicaten als het risico op foutieve samenvoegingen.
+\subsection{Evaluatie van robuustheid en herstel}
+\label{subsec:lit-evaluatie}
 
-\subsection*{Dataverzameling en randvoorwaarden}
+Recente publicaties tonen ook aan dat de evaluatie van webextractie zelf complexer is dan louter meten of een systeem op één moment correcte output geeft. \textit{LIVEWEB-IE} benadrukt dat live evaluatie nodig is om de impact van veranderende websitestructuren zichtbaar te maken.
 
-Als er geen API beschikbaar is, kan scraping/crawling gebruikt worden. Maar dit brengt verschillende potentiële problemen met zich mee. Wijzigingen aan websites en de regels van crawling zijn realistische risico’s.
-Daarnaast geeft het Robots Exclusion Protocol (robots.txt) richtlijnen die crawlers geacht worden te respecteren \autocite{rfc9309}.
-Ten slotte bepalen juridische kaders mee wat haalbaar is: databankbescherming (EU Databankenrichtlijn) en privacywetgeving (GDPR) zijn relevante randvoorwaarden bij hergebruik en opslag \autocite{eu2016gdpr}.
-In deze bachelorproef worden die randvoorwaarden gebruikt om de selectie van bronnen en de scope van de proof of concept af te bakenen.
+Daarnaast is ook relevant hoe de input aan een model wordt aangeboden. In \textit{NEXT-EVAL} wordt een test voorgesteld waarin DOM-structuren synthetisch worden aangepast om traditionele en LLM-gebaseerde extractiebenaderingen te vergelijken. Die studie toont dat de representatie van webinhoud sterk doorweegt op de prestaties van de LLM-extractor. Gestructureerde invoervormen zoals normale JSON leveren duidelijk betere resultaten op dan ruwe HTML. Daarbij komen ook minder hallucinaties voor die de LLM zelf verzint. Voor deze bachelorproef is dat belangrijk, omdat het erop wijst dat AI-ondersteunde wrapper repair niet alleen afhangt van het model zelf, maar ook van de manier waarop de informatie aan dat model wordt voorgesteld \autocite{kurkin2025nexteval}.
 
-\subsection*{Evaluatie: meetcriteria voor “beter”}
+Deze inzichten ondersteunen een evaluatiekader waarin niet alleen de correctheid van de data, maar ook herstelvermogen, benodigde manuele interventies, hersteltijd en resourceverbruik worden meegenomen. De literatuur maakt immers duidelijk dat robuustheid in deze context meer omvat dan een hoge nauwkeurigheid op één statische dataset \autocite{yang2026livewebie, kurkin2025nexteval, farag2025pinterest}.
 
-Omdat de onderzoeksvraag draait rond impact op dubbele en irrelevante meldingen, moet de evaluatie dat ook aantonen.
-Voor het onderscheid tussen false positives en gemiste relevante items zijn precisie en recall standaardbegrippen uit information retrieval.
-Voor deduplicatie/ER worden gelijkaardige criteria gebruikt (bijvoorbeeld\ duplicaatpercentage na clustering en fouten door over of onder samenvoegen) \autocite{christen2012datamatching}.
-In dit onderzoek wordt daarom gemeten: (1) aandeel duplicaten, (2) false positives, (3) gemiste relevante panden, aangevuld met korte gebruikersfeedback over ervaren relevantie.
+\subsection{Rol van technische randvoorwaarden}
+\label{subsec:lit-randvoorwaarden}
 
-\subsection*{Synthese}
+Naast de extractietechnieken zelf spelen ook randvoorwaarden een rol. De officiële standaard \textit{RFC 9309} beschrijft het \textit{Robots Exclusion Protocol} en verduidelijkt hoe een \texttt{robots.txt}-bestand instructies kan geven aan crawlers over welke URI's zij al dan niet horen te bezoeken. Dezelfde standaard benadrukt echter ook dat deze regels geen vorm van toegangsautorisatie zijn. Voor een bachelorproef betekent dit dat scraping niet enkel technisch, maar ook praktisch verantwoord moet gebeuren, bijvoorbeeld door te werken met publieke pagina’s, beperkte request rates en waar nuttig met opgeslagen snapshots voor reproduceerbare tests \autocite{rfc9309}.
 
-De literatuur ondersteunt dat woningzoeken tijdsgevoelig is en dat fragmentatie over platformen de kans op meldingsruis verhoogt \autocite{rae2015housingsearch}.
-Technisch wijst de literatuur erop dat normalisatie en entity resolution geen “one size fits all” hebben: keuzes rond matching en deduplicatie veroorzaken duidelijke trade-offs \autocite{getoor2012er, elmagarmid2007duplicate}.
-Daarom vergelijkt deze bachelorproef een beperkte set van varianten (strikt vs scoring-gebaseerd; simpel vs multi-feature deduplicatie) en evalueert ze die varianten met meetcriteria die zowel meldingsruis als gemiste opportuniteiten mee in beeld brengen.
+\subsection{Synthese}
+\label{subsec:lit-synthese}
 
+De recente literatuur toont dus niet aan dat robuuste of zelfherstellende webextractie een volledig onontgonnen onderzoeksdomein is. Wel blijkt duidelijk dat er nog steeds een open praktische vraag bestaat over welke aanpak in een concrete context het meest geschikt is om extractie robuust te houden wanneer websitestructuren wijzigen. Enerzijds blijven klassieke wrappers aantrekkelijk door hun snelheid, transparantie en lage kost. Anderzijds tonen recente studies dat hybride of AI-ondersteunde benaderingen potentieel bieden voor herstel, generalisatie en schaal, maar tegelijk extra complexiteit en kost met zich meebrengen \autocite{marineli2025controlplanes, yang2026livewebie, bohra2025weblists, farag2025pinterest, kurkin2025nexteval}.
+
+Daarmee sluit de literatuurstudie rechtstreeks aan op de onderzoeksvraag van deze bachelorproef. De relevante onderzoekskloof ligt niet in de vraag of webextractie bestaat, maar in de vraag welke herstelstrategie binnen een afgebakende casus het best werkt om falende extractie na wijzigingen in de DOM op te vangen, rekening houdend met correctheid, onderhoudsinspanning en benodigde resources \autocite{marineli2025controlplanes, yang2026livewebie, farag2025pinterest, kurkin2025nexteval}
 %---------- Methodologie -------------------------------------------------------
 \section{Voorgestelde methodologie}
 \label{sec:methodologie}
 
-Het doel van dit onderzoek is niet om een productierijp systeem te bouwen, maar om ontwerpkeuzes in een centraal platform onafhankelijk zoek en alertmechanisme te vergelijken.
-Daarom wordt een beperkte proof of concept ontwikkeld als onderzoeksinstrument: dezelfde inputdata en dezelfde zoekprofielen worden herhaaldelijk verwerkt met verschillende varianten voor (1) matching en filtering en (2) deduplicatie.
-De impact wordt beoordeeld met meetcriteria die zowel meldingsruis als gemiste relevante opportuniteiten zichtbaar maken.
+Dit onderzoek volgt een toegepast onderzoeksdesign waarin een technisch probleem binnen een concrete casus wordt onderzocht. De methodologie wordt omschreven als een vergelijkende en evaluatieve aanpak: het bouwen van een werkend systeem staat niet centraal, maar wel het onderzoeken welke herstelstrategie het meest geschikt is om webextractie robuust te houden wanneer de DOM structuur van een website wijzigt. Een proof of concept wordt daarbij gebruikt als onderzoeksinstrument om verschillende aanpakken op een reproduceerbare manier te testen en te vergelijken.
 
-\subsection*{Fase 1 -- Afbakening, bronnenkeuze en randvoorwaarden}
+Om de scope haalbaar te houden, wordt het onderzoek beperkt tot een kleine selectie van vastgoedplatformen, een beperkte set publiek beschikbare gegevensvelden en een afgebakend aantal herstelstrategieën.
 
-\textbf{Doel:} de onderzoekscontext vastleggen en een haalbare selectie van bronnen en zoekcriteria bepalen.
+\subsection{Fase 1 --- Afbakening van de casus en selectie van gegevensvelden}
+\label{subsec:meth-fase1}
 
+In een eerste fase wordt de casus afgebakend. Er wordt een beperkte selectie gemaakt van vastgoedplatformen die als onderzoekscontext dienen. Daarnaast wordt bepaald welke gegevensvelden binnen de scope van het onderzoek vallen. Hierbij wordt gefocust op velden die voldoende representatief zijn voor vastgoedextractie en die relevant zijn voor vergelijking tussen bronnen, bijvoorbeeld titel, prijs, locatie, type pand en URL van de bron.
+
+Het doel van deze fase is niet om een volledig datamodel uit te werken, maar wel om een beperkte en duidelijk afgebakende extractieset vast te leggen. Op basis daarvan wordt ook bepaald welke pagina's in het verdere onderzoek worden meegenomen.
+
+\subsection{Fase 2 --- Analyse van bronstructuur en randvoorwaarden}
+\label{subsec:meth-fase2}
+
+In een tweede fase worden de geselecteerde websites geanalyseerd. Per bron wordt nagegaan hoe de relevante gegevens in de structuur van de pagina worden opgenomen, welke elementen en attributen daarvoor gebruikt worden, en hoe de extractie afhankelijk is van specifieke selectors of structurele aannames.
+
+Daarnaast worden per bron de praktische randvoorwaarden in kaart gebracht. Daarbij wordt onder meer nagegaan welke beperkingen voortvloeien uit het \texttt{robots.txt} bestand, de gebruiksvoorwaarden en de noodzaak om de belasting op externe websites beperkt te houden. Deze analyse dient om de uiteindelijke onderzoeksopzet technisch verantwoord en haalbaar te houden.
+
+De output van deze fase is een overzicht van:
 \begin{enumerate}
-  \item Selecteren van minstens twee relevante Belgische huurplatformen die voldoende data aanbieden voor vergelijking.
-  \item Vastleggen van een beperkte maar representatieve set zoekcriteria die op de gekozen platformen voldoende consistent voorkomt (bijvoorbeeld prijs, regio, type woning en aantal slaapkamers).
-  \item Analyseren van technische en juridische randvoorwaarden per huurplatform
-  \begin{enumerate}
-    \item raadplegen van robots.txt en publieke gebruiksvoorwaarden
-    \item inschatten van risico's rond aanpassingen aan het huurplatform (wijzigende structuur) 
-  \end{enumerate}
+    \item de geselecteerde bronnen
+    \item de relevante gegevensvelden
+    \item de technische extractieaanknopingspunten
+    \item de beperkingen en randvoorwaarden per bron
 \end{enumerate}
 
+\subsection{Fase 3 --- Opbouw van een klassieke baseline extractor}
+\label{subsec:meth-fase3}
 
+In de derde fase wordt een klassieke regelgebaseerde extractor opgesteld voor de geselecteerde bronnen. Deze baseline vormt het vertrekpunt voor de verdere vergelijking in het onderzoek. De extractor maakt gebruik van expliciete extractieregels, bijvoorbeeld via CSS selectors, XPath of vergelijkbare technieken, om de gekozen gegevensvelden op een systematische manier uit webpagina's te halen.
 
-\textbf{Output:} een scopetabel met per gekozen huurplatform beschikbare velden, extractiehaalbaarheid, beperkingen/risico's, en een finale lijst van opgenomen zoekcriteria.
+De baseline extractor wordt bewust eenvoudig en controleerbaar gehouden. Het doel is niet om een maximaal uitgebreid systeem te bouwen, maar om een referentieaanpak te hebben waarvan duidelijk is welke structurele aannames worden gemaakt en op welke punten de extractie kwetsbaar is voor DOM wijzigingen.
 
-\subsection*{Fase 2 -- Dataverzameling en datasetconstructie}
-
-\textbf{Doel:} een dataset opbouwen waarop varianten vergeleken kunnen worden.
-
+De output van deze fase bestaat uit:
 \begin{enumerate}
-\item Opzetten dataverzameling voor nieuwe listings binnen geselecteerde huurplatformen. Via API indien beschikbaar, anders via scraping.
-  \item Opslaan van  listings in bronformaat (bron-URL en tijdstip van ophalen) zodat latere controle en reproduceerbaarheid mogelijk blijven.
-  \item Samenstellen van datasets voor analyse en evaluatie:
-  \begin{enumerate}
-    \item een volledige ruwe dataset voor verwerking;
-    \item een gelabelde subset voor evaluatie.
-  \end{enumerate}
+    \item een werkende baseline extractor voor de geselecteerde bronnen
+    \item een beschrijving van de gebruikte extractieregels
+    \item een eerste referentieset van correcte extractieresultaten
 \end{enumerate}
 
-\textbf{Output:} een dataset per huurplatform (ruwe listings) en een beschrijving van de verzamelperiode en het datavolume.
+\subsection{Fase 4 --- Simulatie en detectie van extractiefouten}
+\label{subsec:meth-fase4}
 
-\subsection*{Fase 3 -- Normalisatie naar een uniform intern schema}
+In de vierde fase wordt onderzocht hoe de baseline extractor reageert op structurele wijzigingen in de DOM. Omdat het niet haalbaar is om voor het volledige onderzoek uitsluitend te wachten op spontane wijzigingen in live websites, werk ik met een combinatie van opgeslagen pagina snapshots en gecontroleerde structurele wijzigingen. Op die manier kunnen testgevallen op een reproduceerbare manier worden opgebouwd.
 
-\textbf{Doel:} listings uit meerdere huurplatformen omzetten naar een gemeenschappelijk datamodel zodat matching en deduplicatie vergelijkbaar worden.
-
+Per testcase wordt nagegaan:
 \begin{enumerate}
-  \item Defini\"eren van een intern data schema met kernvelden (zoals prijs, locatie, type woning, aantal slaapkamers, bron-URL en publicatiemoment).
-  \item Implementeren van bron specifieke mappers die velden omzetten naar het interne schema, inclusief normalisatieregels.
-  \item Kwaliteitscontrole op de genormaliseerde data. Zoals ontbrekende waarden per veld en incositenties.
+    \item welke wijziging werd aangebracht aan de DOM structuur
+    \item welke gevolgen die wijziging heeft voor de baseline extractor
+    \item hoe extractiefouten zichtbaar worden, bijvoorbeeld via ontbrekende velden, foutieve waarden of volledig falende selectors
 \end{enumerate}
 
-\textbf{Output:} intern datamodel als schema ,mappingdocument per bron en een genormaliseerde dataset.
-\subsection*{Fase 4 -- Variantspecificatie: matching/filtering en deduplicatie}
+Deze fase heeft als doel om niet alleen het falen van extractie zichtbaar te maken, maar ook om een basis te leggen voor het detecteren van gebroken extractie binnen een pipeline.
 
-\textbf{Doel:} de varianten vastleggen die met elkaar vergeleken worden.
+\subsection{Fase 5 --- Uitwerking van herstelstrategieën}
+\label{subsec:meth-fase5}
 
-\begin{enumerate}
-  \item \textbf{Zoekprofielen:}
-  \begin{enumerate}
-    \item opstellen van een beperkte set representatieve zoekprofielen op basis van interviews of vereisten.
-    \item bepalen welke criteria strikt zijn (bijvoorbeeld maximumprijs, regio) en welke criteria flexibel mogen zijn.
-  \end{enumerate}
-
-  \item \textbf{Matching en filtering (2 varianten):}
-  \begin{enumerate}
-    \item M1 - strikt: enkel resultaten die aan alle criteria voldoen.
-    \item M2 - score: resultaten krijgen een score. Enkel resultaten boven een vaste drempel worden behouden.
-  \end{enumerate}
-
-  \item \textbf{Deduplicatie (2 varianten):}
-  \begin{enumerate}
-    \item D1 -- \textit{regels:} dubbels herkennen via vaste combinaties van sterke kenmerken.
-    \item D2 -- \textit{score:} dubbels herkennen via een gelijkenisscore met een vaste drempel.
-  \end{enumerate}
-\end{enumerate}
-
-\textbf{Output:} een korte variantfiche met de gekozen regels/drempels en een proof of concept die alle varianten kan uitvoeren.
-
-\subsection*{Fase 5 -- Evaluatie}
-
-\textbf{Doel:} nagaan welke varianten zorgen voor minder dubbele en minder irrelevante meldingen, zonder te veel relevante panden te missen.
-\begin{enumerate}
-  \item \textbf{Gelabelde testset maken:}
-  \begin{enumerate}
-    \item voor een beperkte subset aanduiden welke listings hetzelfde pand zijn (duplicaten)
-    \item voor dezelfde subset per zoekprofiel aanduiden of een listing relevant is (eventueel met korte feedback van testgebruikers).
-  \end{enumerate}
-
-  \item \textbf{Metingen per variantcombinatie (M en D):}
-  \begin{enumerate}
-    \item hoeveel dubbels blijven er over na deduplicatie.
-    \item hoeveel irrelevante meldingen worden toch doorgelaten.
-    \item hoeveel relevante panden worden gemist.
-    \item hoeveel verschillende panden worden foutief samengevoegd.
-  \end{enumerate}
-
-  \item \textbf{Korte gebruikerstest (ondersteunend):}
-  \begin{enumerate}
-    \item enkele testgebruikers bekijken een beperkte set meldingen en geven korte feedback over relevantie en duidelijkheid;
-    \item de feedback wordt kort samengevat en vergeleken met de meetresultaten.
-  \end{enumerate}
-\end{enumerate}
-
-\textbf{Output:} tabellen/grafieken die de varianten vergelijken en een korte conclusie over de beste aanpak binnen de scope.
-
-\subsection*{Fase 6 -- Reproduceerbaarheid en kwaliteitsbewaking}
-
-\textbf{Doel:} zorgen dat resultaten controleerbaar en herhaalbaar zijn.
+In de vijfde fase worden meerdere herstelstrategieën onderzocht en vergeleken. De vergelijking blijft bewust beperkt tot een klein aantal varianten, zodat de scope van het onderzoek beheersbaar blijft. Minstens de volgende drie benaderingen worden opgenomen:
 
 \begin{enumerate}
-  \item Vastleggen van dataset snapshots en configuratiebestanden zodat runs herhaald kunnen worden.
-  \item Logging van aantallen records per stap (ruw, genormaliseerd, na deduplicatie, matches per profiel) en van fouten.
-  \item Rapporteren van beperkingen (zoals ontbrekende of inconsistente velden, en wijzigingen in bronstructuur) en hun mogelijke impact op de resultaten.
+    \item \textbf{Manuele aanpassing van de extractor}: de klassieke referentieaanpak waarbij extractieregels handmatig worden aangepast nadat een structurele wijziging werd vastgesteld.
+    \item \textbf{Regelgebaseerde herstelstrategie}: een aanpak waarbij alternatieve selectors, structurele patronen of validatieregels worden gebruikt om extractie automatisch of semi automatisch te herstellen.
+    \item \textbf{AI ondersteunde wrapper repair}: een aanpak waarbij AI wordt ingezet om op basis van de gewijzigde DOM structuur en de eerder gekende extractielogica een herstelvoorstel of aangepaste extractieregel te genereren.
 \end{enumerate}
 
-\textbf{Output:} logbestanden, configuraties en een korte validiteits- en beperkingenparagraaf bij de resultaten.
+Het doel van deze fase is niet om een generiek zelfherstellend framework te bouwen, maar om binnen een beperkte casus te onderzoeken welke aanpak het meest geschikt is om extractie opnieuw correct te laten functioneren.
 
+\subsection{Fase 6 --- Vergelijkende evaluatie}
+\label{subsec:meth-fase6}
+
+In de laatste fase worden de gekozen aanpakken systematisch geëvalueerd. De evaluatie richt zich op meetbare criteria die rechtstreeks aansluiten bij de onderzoeksvraag. Daarbij wordt minstens gekeken naar:
+\begin{enumerate}
+    \item \textbf{extractiecorrectheid}: in welke mate de juiste waarden correct worden opgehaald per gegevensveld
+    \item \textbf{herstelvermogen}: in welke mate een aanpak extractie opnieuw correct laat functioneren na een DOM wijziging
+    \item \textbf{onderhoudsinspanning}: hoeveel manuele tussenkomst nodig blijft om een extractor opnieuw werkend te krijgen
+    \item \textbf{benodigde resources}: welke extra complexiteit, verwerkingstijd of externe modelkost gepaard gaat met de gekozen herstelstrategie
+\end{enumerate}
+
+De evaluatie gebeurt op basis van dezelfde testgevallen en laat daardoor een directe vergelijking toe tussen de verschillende benaderingen. Op basis van de resultaten wordt nagegaan welke herstelstrategie binnen deze afgebakende casus de beste balans biedt tussen robuustheid, onderhoudbaarheid en technische haalbaarheid.
 
 %---------- Verwachte resultaten en bijdrage -----------------------------------
 
 \sloppy
 \section{Verwachte resultaten en bijdrage}
 \label{sec:verwachte-resultaten}
-De verwachte output van dit onderzoek is een duidelijke vergelijking van verschillende keuzes voor
-(1) matching/filtering en (2) deduplicatie bij huur alerts over meerdere platformen.
-Ik bouw een beperkte proof of concept om die keuzes op dezelfde data te testen en eerlijk te vergelijken.
 
-De verwachte bijdrage bestaat uit:
-\begin{enumerate}
-  \item een korte afbakening van de gebruikte huurplatformen, de beschikbare velden en de belangrijkste beperkingen
-  \item een eenvoudig, uniform datamodel met normalisatie zodat listings van verschillende platformen vergelijkbaar worden
-  \item een beschrijving van de geteste varianten (matching en deduplicatie) met hun regels / drempels
-  \item meetresultaten per variant zoals aantal duplicaten dat overblijft, aantal irrelevante meldingen, aantal gemiste relevante panden en aantal foutieve samenvoegingen
-  \item een korte conclusie met aanbevelingen: welke aanpak werkt het best binnen de gekozen scope en waarom.
-\end{enumerate}
+Deze bachelorproef wil in de eerste plaats een beter inzicht geven in de manier waarop klassieke webextractie faalt wanneer de DOM structuur van een website wijzigt. Er wordt verwacht dat uit de casusanalyse zal blijken dat zelfs beperkte structurele aanpassingen, zoals wijzigingen in HTML elementen, attributen of hiërarchie, een merkbare impact kunnen hebben op de correctheid van de extractie. Daardoor wordt duidelijk welke onderdelen van een klassieke extractor het meest kwetsbaar zijn voor structurele veranderingen in webpagina's.
 
-%---------- Verwacht resultaat en conclusie -----------------------------------
+Daarnaast wordt verwacht dat de vergelijkende evaluatie zal aantonen dat niet elke herstelstrategie dezelfde sterktes en beperkingen heeft. Een manuele aanpassing van extractieregels zal vermoedelijk het meest controleerbaar zijn, maar tegelijk ook de meeste onderhoudsinspanning vragen. Regelgebaseerde herstelstrategieën kunnen in bepaalde gevallen sneller een bruikbaar resultaat opleveren, maar zullen mogelijk beperkt blijven tot voorspelbare of minder ingrijpende DOM wijzigingen. Voor AI ondersteunde wrapper repair wordt verwacht dat deze aanpak in sommige gevallen een flexibelere vorm van herstel mogelijk maakt, maar dat dit gepaard kan gaan met extra complexiteit en hogere resourcevereisten.
 
+De verwachte resultaten van het onderzoek situeren zich daarom niet alleen op het niveau van extractiecorrectheid, maar ook op het niveau van vergelijking en afweging. Het onderzoek moet duidelijk maken in welke mate de verschillende benaderingen verschillen op vlak van herstelvermogen, onderhoudsinspanning en technische haalbaarheid. Daarbij wordt verwacht dat geen enkele aanpak in alle situaties de beste keuze zal zijn, maar dat de evaluatie wel toelaat om te bepalen welke strategie binnen de gekozen casus de meest evenwichtige oplossing biedt.
 
-\sloppy
-\section{Verwacht resultaat en conclusie}
-\label{sec:verwacht_resultaat_conclusie}
+De bijdrage van deze bachelorproef ligt in een afgebakende en technisch onderbouwde vergelijking van herstelstrategieën voor falende webextractie binnen de context van geselecteerde vastgoedplatformen. De proof of concept levert daarbij geen productierijp systeem op, maar wel een onderzoeksinstrument waarmee het probleem op een systematische manier onderzocht kan worden. Op basis van de resultaten moeten aanbevelingen geformuleerd kunnen worden over hoe webextractie binnen deze context robuuster en beter onderhoudbaar gemaakt kan worden.
 
-Er wordt verwacht dat meldingen vooral slechter worden door (1) duplicaten tussen platformen en
-(2) filters die niet goed genoeg zijn door verschillen in data.
-Het onderzoek moet aantonen welke combinatie van matching en deduplicatie het beste evenwicht geeft tussen
-minder ``ruis'' en zo weinig mogelijk gemiste panden.
+\section{Verwachte conclusie}
+\label{sec:verwachte-conclusie}
 
-Concreet wordt verwacht dat:
-\begin{enumerate}
-  \item strikte matching minder irrelevante meldingen geeft maar sneller relevante panden mist
-  \item scoring gebaseerde matching meer kans geeft om relevante panden te vinden maar soms extra ruis toelaat
-  \item sterkere deduplicatie meer dubbele meldingen wegneemt maar het risico verhoogt op fout samenvoegen
-  \item de beste aanpak diegene is met duidelijk minder duplicaten en ruis zonder veel relevante panden te missen
-\end{enumerate}
+Op basis van de literatuur en de voorgestelde methodologie wordt verwacht dat klassieke regelgebaseerde webextractie efficiënt en bruikbaar blijft zolang de structuur van een website voldoende stabiel is, maar tegelijk kwetsbaar is voor structurele wijzigingen in de DOM. Verder wordt verwacht dat herstelstrategieën nodig zijn om extractie na dergelijke wijzigingen opnieuw correct te laten functioneren.
 
-De conclusie zal dus een onderbouwd antwoord geven op:
-\begin{enumerate}
-  \item welke ontwerpkeuzes het beste werken binnen de afgebakende scope
-  \item waar de meeste fouten vandaan komen (data-verschillen, ontbrekende velden, drempels)
-  \item wat je als volgende stap best verbetert (bijvoorbeeld betere normalisatie of extra kenmerken voor deduplicatie).
-\end{enumerate}
+Daarnaast wordt verwacht dat AI ondersteunde wrapper repair in bepaalde gevallen een meerwaarde kan bieden ten opzichte van een uitsluitend manuele of regelgebaseerde aanpak, vooral wanneer structurele wijzigingen minder voorspelbaar zijn. Tegelijk zal deze aanpak vermoedelijk niet zonder nadelen zijn, aangezien extra complexiteit, resourceverbruik en beperkingen op het vlak van reproduceerbaarheid eveneens een rol spelen.
+
+De verwachte conclusie van deze bachelorproef is daarom niet dat één techniek in alle omstandigheden superieur is, maar wel dat de meest geschikte aanpak afhangt van de afweging tussen correctheid, herstelvermogen, onderhoudsinspanning en technische haalbaarheid. Het onderzoek moet uiteindelijk toelaten om voor de gekozen casus onderbouwd aan te geven welke herstelstrategie het meest geschikt is om webextractie robuust te houden bij structurele wijzigingen in de DOM.
 
 
 
